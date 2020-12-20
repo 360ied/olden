@@ -19,10 +19,12 @@
 package oldenprotocol
 
 import (
+	"bytes"
+
 	"olden/oldenutils"
 )
 
-type SendCallback func([]byte)
+type SendCallback func(buffer *bytes.Buffer)
 
 func WithSendPlayerIdentification(username string, verificationKey []byte, callback SendCallback) {
 	buf := oldenutils.GetBuffer()
@@ -34,7 +36,7 @@ func WithSendPlayerIdentification(username string, verificationKey []byte, callb
 	buf.Write(classicStrBytes(verificationKey)) // verification key
 	buf.WriteByte(0x00)                         // unused. note: this is used by classic protocol extension
 
-	callback(buf.Bytes())
+	callback(buf)
 }
 
 func WithSendSetBlock(x, y, z uint16, block byte, callback SendCallback) {
@@ -54,7 +56,7 @@ func WithSendSetBlock(x, y, z uint16, block byte, callback SendCallback) {
 	}
 	buf.WriteByte(block) // block
 
-	callback(buf.Bytes())
+	callback(buf)
 }
 
 func WithSendPositionAndOrientation(playerID byte, x, y, z uint16, yaw, pitch uint8, callback SendCallback) {
@@ -71,7 +73,7 @@ func WithSendPositionAndOrientation(playerID byte, x, y, z uint16, yaw, pitch ui
 	buf.WriteByte(yaw)             // yaw
 	buf.WriteByte(pitch)           // pitch
 
-	callback(buf.Bytes())
+	callback(buf)
 }
 
 func WithSendMessage(message string, callback SendCallback) {
@@ -82,5 +84,5 @@ func WithSendMessage(message string, callback SendCallback) {
 	buf.WriteByte(0xff) // unused, always 0xff
 	buf.WriteString(classicString(message))
 
-	callback(buf.Bytes())
+	callback(buf)
 }
