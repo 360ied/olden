@@ -16,12 +16,64 @@
 package oldenprotocol
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/binary"
+	"io"
 	"strings"
 
 	"olden/oldenutils"
 )
+
+type readAction func(*bufio.Reader) error
+
+func doRead(r *bufio.Reader, actions ...readAction) error {
+	for _, v := range actions {
+		if err := v(r); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func readByte(ptr *byte) readAction {
+	return func(r *bufio.Reader) (err error) {
+		*ptr, err = r.ReadByte()
+		return
+	}
+}
+
+func readInt8(ptr *int8) readAction {
+	return func(r *bufio.Reader) (err error) {
+		var b byte
+		b, err = r.ReadByte()
+		*ptr = int8(b)
+		return
+	}
+}
+
+func readUint16(ptr *uint16) readAction {
+	return func(r *bufio.Reader) (err error) {
+		buf := make([]byte, 2)
+		_, err = io.ReadFull(r, buf)
+		*ptr = binary.BigEndian.Uint16(buf)
+		return
+	}
+}
+
+func readClassicString(ptr *[64]byte) readAction {
+	return func(r *bufio.Reader) (err error) {
+		_, err = io.ReadFull(r, ptr[:])
+		return
+	}
+}
+
+func readClassicByteArray(ptr *[1024]byte) readAction {
+	return func(r *bufio.Reader) (err error) {
+		_, err = io.ReadFull(r, ptr[:])
+		return
+	}
+}
 
 // pads a string with spaces and trims it a length of 64
 func classicString(s string) string {
