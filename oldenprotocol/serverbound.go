@@ -15,7 +15,7 @@
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // no-io protocol implementation
-// all byte slices given to callback should not be retained
+// all buffers given to callback should not be retained
 package oldenprotocol
 
 import (
