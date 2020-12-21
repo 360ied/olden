@@ -26,7 +26,8 @@ import (
 
 type SendCallback func(buffer *bytes.Buffer)
 
-func WithSendPlayerIdentification(username string, verificationKey []byte, callback SendCallback) {
+// If in doubt, set extByte to 0x00
+func WithSendPlayerIdentification(username string, verificationKey []byte, extByte byte, callback SendCallback) {
 	buf := oldenutils.GetBuffer()
 	defer oldenutils.PutBuffer(buf)
 
@@ -34,7 +35,7 @@ func WithSendPlayerIdentification(username string, verificationKey []byte, callb
 	buf.WriteByte(0x07)                         // protocol version 7
 	buf.WriteString(classicString(username))    // username
 	buf.Write(classicStrBytes(verificationKey)) // verification key
-	buf.WriteByte(0x00)                         // unused. note: this is used by classic protocol extension
+	buf.WriteByte(extByte)                      // unused in the vanilla protocol, but is used in the extension protocol
 
 	callback(buf)
 }
@@ -59,6 +60,7 @@ func WithSendSetBlock(x, y, z uint16, block byte, callback SendCallback) {
 	callback(buf)
 }
 
+// If in doubt, set playerID to 0xff
 func WithSendPositionAndOrientation(playerID byte, x, y, z uint16, yaw, pitch uint8, callback SendCallback) {
 	buf := oldenutils.GetBuffer()
 	defer oldenutils.PutBuffer(buf)
@@ -66,7 +68,7 @@ func WithSendPositionAndOrientation(playerID byte, x, y, z uint16, yaw, pitch ui
 	uint16Buf := make([]byte, 2)
 
 	buf.WriteByte(0x08)            // packet id
-	buf.WriteByte(playerID)        // player id
+	buf.WriteByte(playerID)        // player id. this is actually unused in the vanilla protocol but is used in the extension protocol
 	writeUint16(buf, uint16Buf, x) // x
 	writeUint16(buf, uint16Buf, y) // y
 	writeUint16(buf, uint16Buf, z) // z
@@ -76,12 +78,13 @@ func WithSendPositionAndOrientation(playerID byte, x, y, z uint16, yaw, pitch ui
 	callback(buf)
 }
 
-func WithSendMessage(message string, callback SendCallback) {
+// If in doubt, set playerID to 0xff
+func WithSendMessage(playerID byte, message string, callback SendCallback) {
 	buf := oldenutils.GetBuffer()
 	defer oldenutils.PutBuffer(buf)
 
-	buf.WriteByte(0x0d) // packet id
-	buf.WriteByte(0xff) // unused, always 0xff
+	buf.WriteByte(0x0d)     // packet id
+	buf.WriteByte(playerID) // always 0xff in the vanilla protocol but is used in the extension protocol
 	buf.WriteString(classicString(message))
 
 	callback(buf)
