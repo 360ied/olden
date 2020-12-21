@@ -17,13 +17,9 @@ package oldenprotocol
 
 import (
 	"bufio"
-	"errors"
-	"fmt"
 )
 
 type (
-	ReceiveCallback func(interface{})
-
 	ServerIdentification struct {
 		ProtocolVersion byte
 		ServerName      [64]byte
@@ -117,10 +113,8 @@ const (
 	UpdateUserTypeID               byte = 0x0f
 )
 
-var InvalidPacketID = errors.New("oldenprotocol: invalid packet id")
-
 // ReadIncoming always returns a non-nil error
-func ReadIncoming(r *bufio.Reader, callback ReceiveCallback) error {
+func ReadIncoming(r *bufio.Reader, callback func(packet interface{}), unknownPacketIDCallback func(r *bufio.Reader, packetID byte) error) error {
 	for {
 		packetID, packetIDErr := r.ReadByte()
 		if packetIDErr != nil {
@@ -268,7 +262,9 @@ func ReadIncoming(r *bufio.Reader, callback ReceiveCallback) error {
 			}
 			callback(p)
 		default:
-			return fmt.Errorf("%w: 0x%x", InvalidPacketID, packetID)
+			if err := unknownPacketIDCallback(r, packetID); err != nil {
+				return err
+			}
 		}
 	}
 }
