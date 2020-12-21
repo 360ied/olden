@@ -24,7 +24,7 @@ import (
 	"olden/oldenutils"
 )
 
-type SendCallback func(buffer *bytes.Buffer)
+type SendCallback func(buf *bytes.Buffer)
 
 // If in doubt, set extByte to 0x00
 func PlayerIdentificationPacket(username, verificationKey string, extByte byte, callback SendCallback) {
