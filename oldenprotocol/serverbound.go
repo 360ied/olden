@@ -40,7 +40,7 @@ func PlayerIdentificationPacket(username, verificationKey string, extByte byte, 
 	callback(buf)
 }
 
-func WithSendSetBlock(x, y, z uint16, block byte, callback SendCallback) {
+func SetBlockPacket(x, y, z uint16, block byte, callback SendCallback) {
 	buf := oldenutils.GetBuffer()
 	defer oldenutils.PutBuffer(buf)
 
@@ -61,7 +61,7 @@ func WithSendSetBlock(x, y, z uint16, block byte, callback SendCallback) {
 }
 
 // If in doubt, set playerID to 0xff
-func WithSendPositionAndOrientation(playerID byte, x, y, z uint16, yaw, pitch uint8, callback SendCallback) {
+func PositionAndOrientationPacket(playerID byte, x, y, z uint16, yaw, pitch uint8, callback SendCallback) {
 	buf := oldenutils.GetBuffer()
 	defer oldenutils.PutBuffer(buf)
 
@@ -79,7 +79,7 @@ func WithSendPositionAndOrientation(playerID byte, x, y, z uint16, yaw, pitch ui
 }
 
 // If in doubt, set playerID to 0xff
-func WithSendMessage(playerID byte, message string, callback SendCallback) {
+func SendMessagePacket(playerID byte, message string, callback SendCallback) {
 	buf := oldenutils.GetBuffer()
 	defer oldenutils.PutBuffer(buf)
 
