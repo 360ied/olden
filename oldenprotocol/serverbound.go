@@ -27,15 +27,15 @@ import (
 type SendCallback func(buffer *bytes.Buffer)
 
 // If in doubt, set extByte to 0x00
-func WithSendPlayerIdentification(username string, verificationKey []byte, extByte byte, callback SendCallback) {
+func PlayerIdentificationPacket(username, verificationKey string, extByte byte, callback SendCallback) {
 	buf := oldenutils.GetBuffer()
 	defer oldenutils.PutBuffer(buf)
 
-	buf.WriteByte(0x00)                         // packet id
-	buf.WriteByte(0x07)                         // protocol version 7
-	buf.WriteString(classicString(username))    // username
-	buf.Write(classicStrBytes(verificationKey)) // verification key
-	buf.WriteByte(extByte)                      // unused in the vanilla protocol, but is used in the extension protocol
+	buf.WriteByte(0x00)                             // packet id
+	buf.WriteByte(0x07)                             // protocol version 7
+	buf.WriteString(classicString(username))        // username
+	buf.WriteString(classicString(verificationKey)) // verification key
+	buf.WriteByte(extByte)                          // unused in the vanilla protocol, but is used in the extension protocol
 
 	callback(buf)
 }
